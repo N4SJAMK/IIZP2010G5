@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Contriboard Admin</title>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js" defer></script>
+    <script src="js/contra.js" defer></script>
+    <link rel="stylesheet" href="css/bootstrap.css" type="text/css"/>
+	<link rel="stylesheet" href="css/contra.css" type="text/css" />
+	<link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css" />
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+	<nav id="sidebar">
+		<div class="logo">
+			<h1 class="title"><img src="img/teamboard_logo.svg">Contr<span class="turquoise">A</span></span></h1>
+			<h2 class="subtitle">Contriboard <span class="turquoise">Admin</span></h2>
+		</div>
+		<div class="menu">
+			<ul>
+				<li><a href="stats.htm"><i class="fa fa-pie-chart fa-fw"></i> Statistics</a></li>
+				<li><a href="users.htm"><i class="fa fa-users fa-fw"></i> Users</a></li>
+				<li><a href="boards.htm"><i class="fa fa fa-th fa-fw"></i> Boards</a></li>
+				<li><a href="backup.htm"><i class="fa fa-server fa-fw"></i> Backups</a></li>
+				<li><a href="#"><i class="fa fa-sign-out fa-fw"></i> Log out</a></li>
+			</ul>
+		</div>
+	</nav>
+	<div id="main">
+		<nav id="topbar">
+			<div class="menu">
+				<ul>
+					<li><a href="stats.htm"><i class="fa fa-pie-chart fa-fw"></i> Statistics</a></li>
+					<li><a href="users.htm"><i class="fa fa-users fa-fw"></i> Users</a></li>
+					<li><a href="boards.htm"><i class="fa fa fa-th fa-fw"></i> Boards</a></li>
+					<li><a href="backup.htm"><i class="fa fa-server fa-fw"></i> Backups</a></li>
+					<li><a href="#"><i class="fa fa-sign-out fa-fw"></i> Log out</a></li>
+				</ul>
+			</div>
+        </nav>
+		<div id="header">
+			<h1>Users</h1>
+		</div>
+		<div class='col-sm-12'>
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="item">
+						<div class="box gray">
+							<h3 class="box-label">Search</h3>
+							<div class="box-content">
+								<form>
+									<div class="box-content-block">
+										<table class="form-table">
+											<tr>
+												<td class="input-label">Status</td>
+												<td><select name="search_status">
+                                                    <option value="all">Show all</option>
+                                                    <option value="active">Active</option>
+                                                    <option value="banned">Banned</option>
+                                                </select></td>
+											</tr>
+											<tr>
+												<td class="input-label">Email</td>
+												<td colspan="3"><input class="full" type="text" name="search_email"></td>
+											</tr>
+                                            <tr>
+                                                <th></th>
+                                                <th>Start</th>
+                                                <th></th>
+                                                <th>End</th>
+                                            </tr>
+                                            <tr>
+                                                <td class="input-label" name="search_active_start">Last active</td>
+                                                <td><select class="date">
+                                                    <option value="25.12.2014">25.12.2014</option>
+                                                </select></td>
+                                                <td class="hyphen">-</td>
+                                                <td><select class="date" name="search_active_end">
+                                                    <option value="27.01.2015">27.01.2015</option>
+                                                </select></td>
+                                            </tr>
+										</table>
+										<table class="form-table">
+											<thead>
+											    <tr>
+											        <th></th>
+											        <th>Min</th>
+											        <th></th>
+											        <th>Max</th>
+											    </tr>
+											</thead>
+										    <tbody>
+											    <tr>
+											        <td class="input-label">Boards</td>
+											        <td><input type="number" name="search_boards_min" value="0"></td>
+											        <td class="hyphen">-</td>
+											        <td><input type="number" name="search_boards_max" value="0"></td>
+											    </tr>
+											    <tr>
+											        <td class="input-label">Tickets</td>
+											        <td><input type="number" name="search_tickets_min" value="0"></td>
+											        <td class="hyphen">-</td>
+											        <td><input type="number" name="search_tickets_max" value="0"></td>
+											    </tr>
+											    <tr>
+											        <td class="input-label">Guests</td>
+											        <td><input type="number" name="search_guests_min" value="0"></td>
+											        <td class="hyphen">-</td>
+											        <td><input type="number" name="search_guests_max" value="0"></td>
+											    </tr>
+											</tbody>
+										</table>
+									</div>
+                                    <div class="box-content-block">
+	                                    <div class="right">
+									        <button type="submit" class="big-button gray" name="search_clear"><i class="fa fa-times fa-lg fa_fix"></i> Clear</button>
+									        <button type="submit" class="big-button blue" name="search_submit"><i class="fa fa-search fa-lg fa_fix"></i> Search</button>
+									    </div>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12 col-lg-10">
+					<div class="item">
+						<div class="table-box">
+							<div class="box-content-row">
+								<p class="left">Result: 128 / 128 users</p>
+								<p class="right">Page 
+									<button class="page-button page-button-selected">1</button>
+									<button class="page-button">2</button>
+									<button class="page-button">3</button>
+									<button class="page-button">4</button>
+									<button class="page-button">5</button>
+									<button class="page-button">6</button>
+									...
+									<button class="page-button">13</button>
+								</p>
+							</div>
+							<div class="box-content-row">
+								<input type="hidden" class="prev-search" name="filter_results" value="128">
+								<input type="hidden" class="prev-search" name="filter_status" value="">
+								<input type="hidden" class="prev-search" name="filter_email" value="">
+                                <input type="hidden" class="prev-search" name="filter_active_start" value="">
+                                <input type="hidden" class="prev-search" name="filter_active_end" value="">
+                                <input type="hidden" class="prev-search" name="filter_boards_min" value="">
+                                <input type="hidden" class="prev-search" name="filter_boards_max" value="">
+                                <input type="hidden" class="prev-search" name="filter_tickets_min" value="">
+                                <input type="hidden" class="prev-search" name="filter_tickets_max" value="">
+                                <input type="hidden" class="prev-search" name="filter_guests_min" value="">
+                                <input type="hidden" class="prev-search" name="filter_guests_max" value="">
+								<table class="data-table">
+									<thead>
+										<tr class="header-row">
+											<th id="selection-dropdown-switch" class="square ">
+												<div id="selection-dropdown">
+													<ul>
+														<li><a onclick="selectAll(0); switchDropdown();">Select none</a></li>
+														<li><a onclick="selectAll(1); switchDropdown();">Select all on page</a></li>
+														<li><a onclick="selectAll(2); switchDropdown();">Select all results</a></li>
+													</ul>
+												</div>
+												<input type="checkbox" id="selection-all" name="selection-all" value="allResults" onclick="event.preventDefault(); switchDropdown();"><label for="selection-all"></label>
+											</th>
+											<th class="text-left"><a href="">Username</a></th>
+											<th><a href="">Boards</a></th>
+											<th><a href="">Tickets</a></th>
+											<th><a href="">Guests</a></th>
+											<th><a href="">Last Active<i class="fa fa-fw fa-caret-down"></i></a></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td class="square"><input type="checkbox" id="selection1" name="selection" value="4578" onclick="check(this, 'ban-button');"><label for="selection1"></label></td>
+											<td class="text-left break"><a href="boards.php?käyttäjähaku">tupu.ankka@ankka.net</a></td>
+											<td>3</td>
+											<td>7</td>
+											<td>2</td>
+											<td>today</td>
+										</tr>
+										<tr>
+											<td class="square"><input type="checkbox" id="selection2" name="selection" value="4578" onclick="check(this, 'ban-button');"><label for="selection2"></label></td>
+											<td class="text-left break"><a href="boards.php?käyttäjähaku">aku.ankka@ankka.net</a></td>
+											<td>1</td>
+											<td>0</td>
+											<td>0</td>
+											<td>today</td>
+										</tr>
+										<tr>
+											<td class="square"><input type="checkbox" id="selection3" name="selection" value="4347" onclick="check(this, 'ban-button');"><label for="selection3"></label></td>
+											<td class="text-left break"><a href="boards.php?käyttäjähaku">roope.ankka@ankka.net</a></td>
+											<td>8</td>
+											<td>43</td>
+											<td>15</td>
+											<td>yesterday</td>
+										</tr>
+										<tr>
+											<td class="square"><input type="checkbox" id="selection4" name="selection" value="6497" onclick="check(this, 'ban-button');"><label for="selection4"></label></td>
+											<td class="text-left break"><a href="boards.php?käyttäjähaku">pelle.peloton@ankka.net</a></td>
+											<td>24</td>
+											<td>184</td>
+											<td>0</td>
+											<td>23.01.2015</td>
+										</tr>
+										<tr>
+											<td class="square"><input type="checkbox" id="selection5" name="selection" value="5784" onclick="check(this, 'ban-button');"><label for="selection5"></label></td>
+											<td class="text-left break"><a href="boards.php?käyttäjähaku">hannu.hanhi@ankka.net</a></td>
+											<td>7</td>
+											<td>7</td>
+											<td>7</td>
+											<td>21.01.2015</td>
+										</tr>
+										<tr class="banned">
+											<td class="square"><input type="checkbox" id="selection6" name="selection" value="1244" onclick="check(this, 'ban-button');"><label for="selection6"></label></td>
+											<td class="text-left break"><a href="boards.php?käyttäjähaku">milla.magia@ankka.net</a> <i class="fa fa-gavel fa_fix"></i></td>
+											<td>11</td>
+											<td>81</td>
+											<td>0</td>
+											<td>21.01.2015</td>
+										</tr>
+										<tr>
+											<td class="square"><input type="checkbox" id="selection7" name="selection" value="9786" onclick="check(this, 'ban-button');"><label for="selection7"></label></td>
+											<td class="text-left break"><a href="boards.php?käyttäjähaku">lupu.ankka@ankka.net</a></td>
+											<td>4</td>
+											<td>12</td>
+											<td>2</td>
+											<td>18.01.2015</td>
+										</tr>
+										<tr>
+											<td class="square"><input type="checkbox" id="selection8" name="selection" value="3872" onclick="check(this, 'ban-button');"><label for="selection8"></label></td>
+											<td class="text-left break"><a href="boards.php?käyttäjähaku">touho.ankka@ankka.net</td>
+											<td>1</td>
+											<td>5</td>
+											<td>0</td>
+											<td>15.01.2015</td>
+										</tr>
+										<tr class="banned">
+											<td class="square"><input type="checkbox" id="selection9" name="selection" value="9238" onclick="check(this, 'ban-button');"><label for="selection9"></label></td>
+											<td class="text-left break"><a href="boards.php?käyttäjähaku">176-167@ankka.net</a> <i class="fa fa-gavel fa_fix"></i></td>
+											<td>7</td>
+											<td>0</td>
+											<td>6</td>
+											<td>06.01.2015</td>
+										</tr>
+										<tr>
+											<td class="square"><input type="checkbox" id="selection10" name="selection" value="8634" onclick="check(this, 'ban-button');"><label for="selection10"></label></td>
+											<td class="text-left break"><a href="boards.php?käyttäjähaku">iines.ankka@ankka.net</a></td>
+											<td>1</td>
+											<td>65</td>
+											<td>2</td>
+											<td>25.12.2014</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="box-content-row">
+								<p class="right">Page 
+									<button class="page-button page-button-selected">1</button>
+									<button class="page-button">2</button>
+									<button class="page-button">3</button>
+									<button class="page-button">4</button>
+									<button class="page-button">5</button>
+									<button class="page-button">6</button>
+									...
+									<button class="page-button">13</button>
+								</p>
+							</div>
+							<div class="box-content-row">
+								<div class="left">
+									<button type="button" class="big-button blue" name="message_user" onclick="loadLightbox(this)"><i class="fa fa-comment fa-lg fa_fix"></i> Message</button>
+									<button type="button" class="big-button purple" name="reset_password" onclick="loadLightbox(this)"><i class="fa fa-random fa-lg"></i> Reset password</button>
+									<button type="button" id="ban-button" class="big-button red" name="ban_user" onclick="loadLightbox(this)"><i class="fa fa-gavel fa-lg fa_fix"></i> Ban</button>
+									<button type="button" class="big-button red" name="delete_user" onclick="loadLightbox(this)"><i class="fa fa-trash-o fa-lg fa_fix"></i> Delete</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="lightbox-container" onclick="closeLightbox()">
+        <div class="col-sm-12 col-md-12">
+            <div class="row"></div>
+            	<div id="lightbox-loader" class="col-xs-10 col-sm-8 col-md-6 col-lg-4 col-xs-push-1 col-sm-push-2 col-md-push-3 col-lg-push-4"></div>
+        </div>
+    </div>
+</body>
+</html>

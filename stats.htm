@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Contriboard Admin</title>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js" defer></script>
+    <script src="js/contra.js" defer></script>
+    <link rel="stylesheet" href="css/bootstrap.css" type="text/css"/>
+	<link rel="stylesheet" href="css/contra.css" type="text/css" />
+	<link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css" />
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+	<nav id="sidebar">
+		<div class="logo">
+			<h1 class="title"><img src="img/teamboard_logo.svg">Contr<span class="turquoise">A</span></span></h1>
+			<h2 class="subtitle">Contriboard <span class="turquoise">Admin</span></h2>
+		</div>
+		<div class="menu">
+			<ul>
+				<li><a href="stats.htm"><i class="fa fa-pie-chart fa-fw"></i> Statistics</a></li>
+				<li><a href="users.htm"><i class="fa fa-users fa-fw"></i> Users</a></li>
+				<li><a href="boards.htm"><i class="fa fa fa-th fa-fw"></i> Boards</a></li>
+				<li><a href="backup.htm"><i class="fa fa-server fa-fw"></i> Backups</a></li>
+				<li><a href="#"><i class="fa fa-sign-out fa-fw"></i> Log out</a></li>
+			</ul>
+		</div>
+	</nav>
+	<div id="main">
+		<nav id="topbar">
+			<div class="menu">
+				<ul>
+					<li><a href="stats.htm"><i class="fa fa-pie-chart fa-fw"></i> Statistics</a></li>
+					<li><a href="users.htm"><i class="fa fa-users fa-fw"></i> Users</a></li>
+					<li><a href="boards.htm"><i class="fa fa fa-th fa-fw"></i> Boards</a></li>
+					<li><a href="backup.htm"><i class="fa fa-server fa-fw"></i> Backups</a></li>
+					<li><a href="#"><i class="fa fa-sign-out fa-fw"></i> Log out</a></li>
+				</ul>
+			</div>
+        </nav>
+		<div id="header">
+			<h1>Statistics</h1>
+		</div>
+		<div class='col-sm-12'>
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-10 col-lg-8">
+					<div class="item">
+						<div class="box full gray">
+							<h3 class="box-label">Total stats</h3>
+							<div class="box-content">
+								<div class="box-content-block">
+									<table class="data-table">
+										<thead>
+											<tr>
+												<th>Used space</th>
+												<th>Reserved space</th>
+												<th>Users</th>
+												<th>Boards</th>
+												<th>Tickets</th>
+												<th>Guests</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>1.86 GB</td>
+												<td>3.30 GB</td>
+												<td>129</td>
+												<td>547</td>
+												<td>1346</td>
+												<td>1000</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-10 col-lg-8">
+					<div class="item">
+						<div class="box full gray">
+							<h3 class="box-label">Activity</h3>
+							<div class="box-content">
+								<div class="box-content-block">
+									<table class="data-table">
+										<thead>
+											<tr class="header-row">
+												<th class="empty"></th>
+												<th>Active users</th>
+												<th>Active guests</th>
+												<th>Active boards</th>
+												<th>New boards</th>
+												<th>New tickets</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<th class="header">Last 24 hours</th>
+												<td>27</td>
+												<td>52</td>
+												<td>34</td>
+												<td>5</td>
+												<td>87</td>
+											</tr>
+											<tr>
+												<th class="header">Last 7 days</th>
+												<td>51</td>
+												<td>83</td>
+												<td>100</td>
+												<td>26</td>
+												<td>221</td>
+											</tr>
+											<tr>
+												<th class="header">Last 30 days</th>
+												<td>92</td>
+												<td>215</td>
+												<td>270</td>
+												<td>84</td>
+												<td>346</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
