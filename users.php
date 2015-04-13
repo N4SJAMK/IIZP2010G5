@@ -46,6 +46,8 @@ $sort = array();
 
 $userCount = $rows;
 
+$usersStatus = 'banned';
+
 if (!isset($search)) {
 	$users = $database->getUserArray($filter, ($page - 1) * $rows, $rows);
 	$userCount = count($users);
@@ -63,6 +65,10 @@ if (!isset($search)) {
 			(isset($search['active_end']) && (int) $user['active']->format('U') > strtotime($search['active_end']))
 		) {
 			unset($users[$key]);
+		}
+
+		if (!isset($user['banned'])){
+			$usersStatus = 'active';			
 		}
 	}
 
@@ -163,7 +169,7 @@ $pageCount = intval(ceil($userCountTotal / $rows));
 			<div class="row">
 				<div class="col-md-12 col-lg-10">
 					<div class="item">
-						<?php userTable($users, $page, $pageCount, $userCount, $userCountTotal, $search);?>
+						<?php userTable($users, $page, $pageCount, $userCount, $userCountTotal, $usersStatus, $search);?>
 					</div>
 				</div>
 			</div>

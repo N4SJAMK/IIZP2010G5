@@ -46,8 +46,15 @@ function deselectSelectAll() {
 function selectAll(check) {
   if (check === undefined) return;
   $("[name='selection']").prop("checked", check);
-  if (check == 2) $("[name='selection-all']").prop("checked", true);
-  else deselectSelectAll();
+  if (check == 2){
+    $("[name='selection-all']").prop("checked", true);
+    toggleBanButton(true);
+  } else {
+    deselectSelectAll();
+    toggleBanButton();
+  }
+
+  ;
 }
 
 function selectionError() {
@@ -59,9 +66,10 @@ function selectionError() {
   }, 500);
 }
 
-function toggleBanButton() {
-  var checked = $("[name='selection']:checked").length;
-  if (checked > 0 && checked == $("[name='selection']:checked").parents("tr.banned").length) {
+function toggleBanButton(allSelected) {
+  var checked = $("[name='selection']:checked").length;  
+  if (($('#selection-all').prop('checked') && $("[name='users_status']").val() == 'banned') ||
+     (allSelected == undefined && checked > 0 && checked == $("[name='selection']:checked").parents("tr.banned").length)) {
     $("#ban-button")
       .attr("id", "unban-button")
       .attr("name", "unban_user")

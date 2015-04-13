@@ -75,8 +75,6 @@ function banUsers($data, $deleteBoards, $ban, $filter = null) {
 			(!isset($user['active']) && (isset($data['filter_active_start']) || isset($data['filter_active_end']))) ||
 			(isset($data['filter_active_start']) && (int) $user['active']->format('U') < strtotime($data['filter_active_start'])) ||
 			(isset($data['filter_active_end']) && (int) $user['active']->format('U') > strtotime($data['filter_active_end'])))):
-
-				echo 'LOL ';
 				if ($ban):
 					if (!$database->setUserData(array('_id' => $user['_id']), array('banned' => true))):
 						die();
@@ -125,6 +123,38 @@ function banUsers($data, $deleteBoards, $ban, $filter = null) {
 function resetPasswords($data, $filter = null) {
 	global $database;
 
+	if (isset($filter)):
+		$users = $database->getUserArray($filter, 0, 0);
+
+		$banned = 0;
+
+		foreach ($users as $user):
+			if (((isset($data['filter_boards_min']) && $user['boards'] < $data['filter_boards_min']) ||
+			(isset($data['filter_boards_max']) && $user['boards'] > $data['filter_boards_max']) ||
+			(isset($data['filter_tickets_min']) && $user['tickets'] < $data['filter_tickets_min']) ||
+			(isset($data['filter_tickets_max']) && $user['tickets'] > $data['filter_tickets_max']) ||
+			(!isset($user['active']) && (isset($data['filter_active_start']) || isset($data['filter_active_end']))) ||
+			(isset($data['filter_active_start']) && (int) $user['active']->format('U') < strtotime($data['filter_active_start'])) ||
+			(isset($data['filter_active_end']) && (int) $user['active']->format('U') > strtotime($data['filter_active_end'])))):
+				if ($ban):
+					if (!$database->setUserData(array('_id' => $user['_id']), array('banned' => true))):
+						die();
+					endif;
+				else:
+					if (!$database->unsetUserData(array('_id' => $user['_id']), array('banned' => true))):
+						die();
+					endif;
+				endif;
+
+				if ($deleteBoards):
+					$database->removeBoard(array('createdBy' => $user['_id']));
+				endif;
+
+				$banned += 1;
+			endif;
+
+		endforeach;
+	else:
 	foreach ($data as $id) {
 		$user = $database->getUser(array('_id' => new MongoId($id)));
 
@@ -141,6 +171,7 @@ function resetPasswords($data, $filter = null) {
 
 		//echo $newPassword . '<br>';
 	}
+	endif;
 
 	echo 'Successfully reset password of ' . count($data) . ' users!';
 }

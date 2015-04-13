@@ -204,7 +204,7 @@ function activity() {
 HTML;
 }
 
-function userTable($data, $page, $pageCount, $userCount, $userCountTotal, $prevSearch) {
+function userTable($data, $page, $pageCount, $userCount, $userCountTotal, $usersStatus, $prevSearch) {
 	$pageButtons = pageButtons($page, $pageCount);
 
 	echo <<<HTML
@@ -217,6 +217,7 @@ function userTable($data, $page, $pageCount, $userCount, $userCountTotal, $prevS
                 <form>
 HTML;
 	echo '
+                    <input type="hidden" name="users_status" value="' . $usersStatus  . '">
                     <input type="hidden" class="prev-search" name="filter_results" value="' . (isset($userCountTotal) ? $userCountTotal : '') . '">
                     <input type="hidden" class="prev-search" name="filter_status" value="' . (isset($prevSearch['status']) ? $prevSearch['status'] : '') . '">
                     <input type="hidden" class="prev-search" name="filter_email" value="' . (isset($prevSearch['email']) ? $prevSearch['email'] : '') . '">
