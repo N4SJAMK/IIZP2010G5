@@ -8,154 +8,139 @@ if (!isset($_POST['jsonData'])) {
 
 $data = json_decode($_POST['jsonData'], true);
 
-var_dump($data);
+//var_dump($data);
 
 $filter = null;
+
+$ids = isset($data['selected']) ? $data['selected'] : array();
 
 if (array_key_exists('filter_results', $data)) {
 	$filter = array();
 
-	if ($data['filter_status'] == 'active' || $data['filter_status'] == 'banned'):
-		$filter['banned'] = array('$exists' => ($data['filter_status'] == 'banned'));
-	endif;
+	if (in_array($data['type'], array('delete_user', 'ban_user', 'unban_user', 'reset_password', 'message_user'))):
+		if ($data['filter_status'] == 'active' || $data['filter_status'] == 'banned'):
+			$filter['banned'] = array('$exists' => ($data['filter_status'] == 'banned'));
+		endif;
 
-	if (!empty($data['filter_email'])):
-		$filter['email'] = array('$regex' => new MongoRegex('/^.*?' . addslashes($data['filter_email']) . '.*?$/'));
+		if (!empty($data['filter_email'])):
+			$filter['email'] = array('$regex' => new MongoRegex('/^.*?' . addslashes($data['filter_email']) . '.*?$/'));
+		endif;
+
+		$users = $database->getUserArray($filter, 0, 0);
+
+		foreach ($users as $user):
+			if (!(
+			($user['boards'] < (int) $data['filter_boards_min']) ||
+			($user['boards'] > (int) $data['filter_boards_max']) ||
+			($user['tickets'] < (int) $data['filter_tickets_min']) ||
+			($user['tickets'] > (int) $data['filter_tickets_max']) ||
+			(!isset($user['active']) && (!empty($data['filter_active_start']) || !empty($data['filter_active_end']))) ||
+			(!empty($data['filter_active_start']) && (int) $user['active']->format('U') < strtotime($data['filter_active_start'])) ||
+			(!empty($data['filter_active_end']) && (int) $user['active']->format('U') > strtotime($data['filter_active_end'])))):
+				$ids[] = $user['_id'];
+			endif;
+		endforeach;
+	elseif (in_array($data['type'], array('delete_board', 'unshare_board'))):
+		$boards = $database->getBoardArray($filter, 0, 0);
+
+		foreach ($boards as $board):
+			if (!(
+			($board['guests'] < (int) $data['filter_guests_min']) ||
+			($board['guests'] > (int) $data['filter_guests_max']) ||
+			($board['tickets'] < (int) $data['filter_tickets_min']) ||
+			($board['tickets'] > (int) $data['filter_tickets_max']) ||
+			(!isset($board['active']) && (!empty($data['filter_active_start']) || !empty($data['filter_active_end']))) ||
+			(!empty($data['filter_active_start']) && (int) $board['active']->format('U') < strtotime($data['filter_active_start'])) ||
+			(!empty($data['filter_active_end']) && (int) $board['active']->format('U') > strtotime($data['filter_active_end'])) ||
+			(!empty($data['filter_created_start']) && (int) $board['createdAt']->format('U') < strtotime($data['filter_created_start'])) ||
+			(!empty($data['filter_created_end']) && (int) $board['createdAt']->format('U') > strtotime($data['filter_created_end'])) ||
+			(!empty($data['filter_owner']) && !preg_match('/^.*?' . addslashes($data['filter_owner']) . '.*?$/', $board['owner'])))):
+				echo 'board: ' . $board['_id'] . ', owner: ' . $board['owner'] . '<br>';
+				$ids[] = $board['_id'];
+			endif;
+		endforeach;
 	endif;
 }
 
 switch ($data['type']) {
-	case 'delete_user':deleteUsers($data, $filter);
+	case 'delete_user':deleteUsers($ids);
 		break;
-	case 'ban_user':banUsers($data, array_key_exists('delete_boards', $data), true, $filter);
+	case 'ban_user':banUsers($ids, array_key_exists('delete_boards', $data), true);
 		break;
-	case 'unban_user':banUsers($data, false, false, $filter);
+	case 'unban_user':banUsers($ids, false, false);
 		break;
-	case 'reset_password':resetPasswords($data, $filter);
+	case 'reset_password':resetPasswords($ids);
+		break;
+	case 'message_user':sendMessage($ids, $data['subject'], $data['message']);
 		break;
 
-	case 'unshare_board':unshareBoards($data, $filter);
+	case 'unshare_board':unshareBoards($ids);
 		break;
-	case 'delete_board':deleteBoards($data, $filter);
+	case 'delete_board':deleteBoards($ids);
 		break;
 
 	case 'create_backup':createBackup($data['backup_name']);
 		break;
 	case 'restore_backup':restoreBackup($data['selected'][0]);
 		break;
-	case 'delete_backup':deleteBackups($data, $filter);
+	case 'delete_backup':deleteBackups(isset($filter) ? null : $data['selected']);
 		break;
 
 }
 
-function deleteUsers($data, $filter = null) {
+function deleteUsers($ids) {
 	global $database;
 
-	foreach ($data['selected'] as $id) {
-		if (!$database->removeUser(array('_id' => new MongoId($id)))) {
+	foreach ($ids as $id):
+		if (!$database->removeUser(array('_id' => new MongoId($id)))):
 			die();
-		}
-	}
-	echo 'Successfully deleted ' . count($data['selected']) . ' users!';
+		endif;
+	endforeach;
+	echo 'Successfully deleted ' . count($ids) . ' users!';
 }
 
-function banUsers($data, $deleteBoards, $ban, $filter = null) {
+function banUsers($ids, $deleteBoards, $ban) {
 	global $database;
 
-	if (isset($filter)):
-		$users = $database->getUserArray($filter, 0, 0);
-
-		$banned = 0;
-
-		foreach ($users as $user):
-			if (((isset($data['filter_boards_min']) && $user['boards'] < $data['filter_boards_min']) ||
-			(isset($data['filter_boards_max']) && $user['boards'] > $data['filter_boards_max']) ||
-			(isset($data['filter_tickets_min']) && $user['tickets'] < $data['filter_tickets_min']) ||
-			(isset($data['filter_tickets_max']) && $user['tickets'] > $data['filter_tickets_max']) ||
-			(!isset($user['active']) && (isset($data['filter_active_start']) || isset($data['filter_active_end']))) ||
-			(isset($data['filter_active_start']) && (int) $user['active']->format('U') < strtotime($data['filter_active_start'])) ||
-			(isset($data['filter_active_end']) && (int) $user['active']->format('U') > strtotime($data['filter_active_end'])))):
-				if ($ban):
-					if (!$database->setUserData(array('_id' => $user['_id']), array('banned' => true))):
-						die();
-					endif;
-				else:
-					if (!$database->unsetUserData(array('_id' => $user['_id']), array('banned' => true))):
-						die();
-					endif;
-				endif;
-
-				if ($deleteBoards):
-					$database->removeBoard(array('createdBy' => $user['_id']));
-				endif;
-
-				$banned += 1;
+	foreach ($ids as $id):
+		if ($ban):
+			if (!$database->setUserData(array('_id' => new MongoId($id)), array('banned' => true))):
+				die();
 			endif;
-
-		endforeach;
-	else:
-		foreach ($data['selected'] as $id):
-			if ($ban):
-				if (!$database->setUserData(array('_id' => new MongoId($id)), array('banned' => true))):
-					die();
-				endif;
-			else:
-				if (!$database->unsetUserData(array('_id' => new MongoId($id)), array('banned' => true))):
-					die();
-				endif;
+		else:
+			if (!$database->unsetUserData(array('_id' => new MongoId($id)), array('banned' => true))):
+				die();
 			endif;
+		endif;
 
-			if ($deleteBoards):
-				$database->removeBoard(array('createdBy' => new MongoId($id)));
-			endif;
-		endforeach;
+		if ($deleteBoards):
+			$database->removeBoard(array('createdBy' => new MongoId($id)));
+		endif;
+	endforeach;
 
-		$banned = count($data['selected']);
-	endif;
-
-	if ($ban):
-		echo 'Successfully banned ' . $banned . ' users!';
-	else:
-		echo 'Successfully unbanned ' . $banned . ' users!';
-	endif;
+	echo 'Successfully ' . ($ban ? '' : 'un') . 'banned ' . count($ids) . ' user' . (count($ids) > 1 ? 's' : '') . '!';
 }
 
-function resetPasswords($data, $filter = null) {
+function sendMessage($ids, $subject, $message) {
 	global $database;
 
-	if (isset($filter)):
-		$users = $database->getUserArray($filter, 0, 0);
+	foreach ($ids as $id):
+		$user = $database->getUser(array('_id' => new MongoId($id)));
 
-		$banned = 0;
+		sendMail(
+			$user['email'],
+			$subject,
+			$message);
 
-		foreach ($users as $user):
-			if (((isset($data['filter_boards_min']) && $user['boards'] < $data['filter_boards_min']) ||
-			(isset($data['filter_boards_max']) && $user['boards'] > $data['filter_boards_max']) ||
-			(isset($data['filter_tickets_min']) && $user['tickets'] < $data['filter_tickets_min']) ||
-			(isset($data['filter_tickets_max']) && $user['tickets'] > $data['filter_tickets_max']) ||
-			(!isset($user['active']) && (isset($data['filter_active_start']) || isset($data['filter_active_end']))) ||
-			(isset($data['filter_active_start']) && (int) $user['active']->format('U') < strtotime($data['filter_active_start'])) ||
-			(isset($data['filter_active_end']) && (int) $user['active']->format('U') > strtotime($data['filter_active_end'])))):
-				if ($ban):
-					if (!$database->setUserData(array('_id' => $user['_id']), array('banned' => true))):
-						die();
-					endif;
-				else:
-					if (!$database->unsetUserData(array('_id' => $user['_id']), array('banned' => true))):
-						die();
-					endif;
-				endif;
+	endforeach;
 
-				if ($deleteBoards):
-					$database->removeBoard(array('createdBy' => $user['_id']));
-				endif;
+	echo 'Successfully sent message to ' . count($ids) . ' user' . (count($ids) > 1 ? 's' : '') . '!';
+}
 
-				$banned += 1;
-			endif;
+function resetPasswords($ids) {
+	global $database;
 
-		endforeach;
-	else:
-	foreach ($data as $id) {
+	foreach ($ids as $id):
 		$user = $database->getUser(array('_id' => new MongoId($id)));
 
 		$newPassword = generatePassword(12);
@@ -170,38 +155,33 @@ function resetPasswords($data, $filter = null) {
 			'New password: ' . $newPassword);
 
 		//echo $newPassword . '<br>';
-	}
-	endif;
+	endforeach;
 
-	echo 'Successfully reset password of ' . count($data) . ' users!';
+	echo 'Successfully reset password of ' . count($ids) . ' user' . (count($ids) > 1 ? 's' : '') . '!';
 }
 
-function unshareBoards($data, $filter = null) {
+function unshareBoards($ids) {
 	global $database;
 
-	foreach ($data as $id) {
-		if (!$database->unshareBoard(array('_id' => new MongoId($id)))) {
+	foreach ($ids as $id):
+		if (!$database->unshareBoard(array('_id' => new MongoId($id)))):
 			die();
-		}
-	}
+		endif;
+	endforeach;
 
-	echo 'Successfully unshared ' . count($data) . ' boards!';
+	echo 'Successfully unshared ' . count($ids) . ' board' . (count($ids) > 1 ? 's' : '') . '!';
 }
 
-function deleteBoards($data, $filter = null) {
+function deleteBoards($ids) {
 	global $database;
 
-	if (isset($filter)) {
+	foreach ($ids as $id):
+		if (!$database->removeBoard(array('_id' => new MongoId($id)))):
+			die();
+		endif;
+	endforeach;
 
-	} else {
-		foreach ($data as $id) {
-			if (!$database->removeBoard(array('_id' => new MongoId($id)))) {
-				die();
-			}
-		}
-	}
-
-	echo 'Successfully deleted ' . count($data) . ' boards!';
+	echo 'Successfully deleted ' . count($ids) . ' board' . (count($ids) > 1 ? 's' : '') . '!';
 }
 
 function createBackup($name) {
@@ -214,34 +194,26 @@ function createBackup($name) {
 	}
 }
 
-function deleteBackups($data, $filter = null) {
-	$mongoBackup = new MongoBackup();
-
-	if (isset($filter)) {
-		if (!$mongoBackup->remove()) {
-			echo "Could not remove backups!";
-		} else {
-			echo "Successfully removed all backups!";
-		}
-	} else {
-		foreach ($data as $name) {
-			if (!$mongoBackup->remove($name)) {
-				echo "Could not remove backup \"$name\"!";
-			} else {
-				echo "Successfully removed backup \"$name\"!";
-			}
-		}
-	}
-}
-
 function restoreBackup($name) {
 	$mongoBackup = new MongoBackup();
 
-	if (!$mongoBackup->restore(DB_NAME, $name)) {
+	if (!$mongoBackup->restore(DB_NAME, $name)):
 		echo "Could not restore backup \"$name\"!";
-	} else {
+	else:
 		echo "Successfully restored backup \"$name\"!";
-	}
+	endif;
+}
+
+function deleteBackups($names) {
+	$mongoBackup = new MongoBackup();
+
+	if (!isset($names)):
+		echo ($mongoBackup->remove() ? "Successfully deleted all backups!" : "Could not remove backups!");
+	else:
+		foreach ($names as $name):
+			echo '<p>' . ($mongoBackup->remove($name) ? "Successfully deleted backup \"$name\"!" : "Could not delete backup \"$name\"!") . '</p>';
+		endforeach;
+	endif;
 }
 
 ?>

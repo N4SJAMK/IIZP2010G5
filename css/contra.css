@@ -32,7 +32,6 @@ body {
 }
 body#login-page {
   background-color: #221a26;
-  color: white;
 }
 body#login-page #login-wrapper {
   text-align: center;
@@ -80,6 +79,10 @@ body#login-page #login-wrapper form input[type=text].bottom, body#login-page #lo
 }
 body#login-page #login-wrapper form input[type=checkbox] + label:after {
   left: 0.1rem;
+}
+body#login-page #login-wrapper form label {
+  left: 0.1rem;
+  color: white;
 }
 body#login-page #login-wrapper form button {
   width: 100%;
@@ -182,6 +185,14 @@ button {
   padding: 0;
   outline: none;
 }
+
+button.table-button {
+  background: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
 button.page-button {
   margin: -0.1rem 0.1rem 0 0.1rem;
   min-width: 2.8rem;
@@ -191,6 +202,7 @@ button.page-button {
   border-radius: 0.4rem;
   color: white;
 }
+
 button.page-button:hover {
   background-color: #619b98;
 }

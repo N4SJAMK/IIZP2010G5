@@ -1,20 +1,17 @@
 <?php
-
 require_once 'functions.php';
-
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'teamboard-dev');
-define('DB_PORT', 27017);
+require_once 'config.php';
 
 class TeamboardAPI {
 	private $connection;
 	private $db;
 
 	function __construct() {
-		$this->connection = new Mongo(sprintf('mongodb://%s:%d/%s', DB_HOST, DB_PORT, DB_NAME));
+		$this->connection = new Mongo(sprintf('mongodb://%s:%d/%s', DB_HOST, DB_PORT, DB_NAME),
+			(defined('DB_USER') && defined('DB_PASS')) ? array('username' => DB_USER, 'password' => DB_PASS) : array());
 
 		$this->db = $this->connection->selectDB(DB_NAME);
-		$test = $this->db->execute('db.stats(1024)');
+
 	}
 
 	function addUser($email, $password) {

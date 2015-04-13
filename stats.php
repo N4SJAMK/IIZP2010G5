@@ -1,4 +1,5 @@
 <?php
+require_once 'auth.php';
 include_once 'sections.php';
 
 if (isset($_POST['adduser'])) {
@@ -63,6 +64,8 @@ HTML;
 				<div class="col-xs-12 col-sm-12 col-md-10 col-lg-8">
 					<div class="item">
 						<?php test();?>
+					</div>
+					<div class="item">
 						<?php totalStats();?>
 					</div>
 				</div>

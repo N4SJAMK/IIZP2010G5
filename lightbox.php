@@ -2,6 +2,8 @@
 
 require_once 'api.php';
 
+error_log('lightbox.php');
+
 $lightboxSettings = array(
 	'message_user' => array(
 		'title' => 'Message',
@@ -120,10 +122,10 @@ if ($type == 'message_user' || $type == 'reset_password' || $type == 'ban_user' 
                 </tr>
                 <tr>
                     <td class="text-right">Subject</td>
-                    <td class="full-width"><input class="full-width" type="text" name="users_message_subject"></td>
+                    <td class="full-width"><input class="form-addition full-width" type="text" name="subject"></td>
                 </tr>
                 <tr>
-                    <td colspan="2"><textarea class="full-width"></textarea></td>
+                    <td colspan="2"><textarea name="message" class="form-addition full-width"></textarea></td>
                 </tr>
             </table>
 HTML;
@@ -231,7 +233,7 @@ HTML;
 
 } else if ($type == 'delete_backup' || $type == 'restore_backup') {
 
-	if (!isset($_POST['selected']) || !is_array($_POST['selected'])) {
+	if (!isset($_POST['selected'])) {
 		die();
 	}
 

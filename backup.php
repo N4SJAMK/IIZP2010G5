@@ -1,9 +1,51 @@
 <?php
+require_once 'auth.php';
 require_once 'sections.php';
 require_once 'MongoBackup.class.php';
 require_once 'api.php';
 
+$search = array();
+$search['sort'] = '';
+foreach ($_GET as $key => $value) {
+	if (!empty($value) || is_numeric($value)) {
+		$search[$key] = $value;
+	}
+}
+
 $backups = (new MongoBackup())->getBackups(DB_NAME);
+
+if (isset($search['sort'])) {
+	switch ($search['sort']) {
+		case 'date_desc':usort($backups, function ($a, $b) {
+				return (strtotime($a['time']) == strtotime($b['time'])) ? 0 : (strtotime($a['time']) < strtotime($b['time'])) ? 1 : -1;
+			});
+			break;
+		case 'date_asc':usort($backups, function ($a, $b) {
+				return (strtotime($a['time']) == strtotime($b['time'])) ? 0 : (strtotime($a['time']) < strtotime($b['time'])) ? -1 : 1;
+			});
+			break;
+		case 'name_asc':usort($backups, function ($a, $b) {return $a['name'] > $b['name'];	});
+			break;
+		case 'name_desc':usort($backups, function ($a, $b) {return $a['name'] < $b['name'];	});
+			break;
+		case 'size_asc':usort($backups, function ($a, $b) {return $a['size'] > $b['size'];	});
+			break;
+		case 'size_desc':usort($backups, function ($a, $b) {return $a['size'] < $b['size'];	});
+			break;
+		case 'users_asc':usort($backups, function ($a, $b) {return $a['users'] > $b['users'];	});
+			break;
+		case 'users_desc':usort($backups, function ($a, $b) {return $a['users'] < $b['users'];	});
+			break;
+		case 'boards_asc':usort($backups, function ($a, $b) {return $a['boards'] > $b['boards'];	});
+			break;
+		case 'boards_desc':usort($backups, function ($a, $b) {return $a['boards'] < $b['boards'];	});
+			break;
+		case 'tickets_asc':usort($backups, function ($a, $b) {return $a['tickets'] > $b['tickets'];	});
+			break;
+		case 'tickets_desc':usort($backups, function ($a, $b) {return $a['tickets'] < $b['tickets'];	});
+			break;
+	}
+}
 
 ?>
 
@@ -33,13 +75,14 @@ $backups = (new MongoBackup())->getBackups(DB_NAME);
 				<div class="col-xs-12 col-sm-11 col-md-9 col-lg-7">
 					<div class="item">
 						<?php totalStats();?>
+						<form id="search"></form>
 					</div>
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-sm-12 col-lg-10">
 					<div class="item">
-						<?php backupTable($backups);?>
+						<?php backupTable($backups, $search);?>
 					</div>
 				</div>
 			</div>

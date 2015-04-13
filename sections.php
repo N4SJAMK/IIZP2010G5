@@ -1,5 +1,4 @@
 <?php
-
 require_once 'api.php';
 require_once 'functions.php';
 
@@ -35,7 +34,7 @@ function sidebar() {
                 <li><a href="users.php"><i class="fa fa-users fa-fw"></i> Users</a></li>
                 <li><a href="boards.php"><i class="fa fa fa-th fa-fw"></i> Boards</a></li>
                 <li><a href="backup.php"><i class="fa fa-server fa-fw"></i> Backups</a></li>
-                <li><a href="#"><i class="fa fa-sign-out fa-fw"></i> Log out</a></li>
+                <li><a href="logout.php"><i class="fa fa-sign-out fa-fw"></i> Log out</a></li>
             </ul>
         </div>
     </nav>
@@ -59,9 +58,9 @@ HTML;
 }
 
 function pageButtons($page, $pageCount) {
-	$pageButtons = '<form><p class="right">Page ';
+	$pageButtons = '<p class="right">Page ';
 
-	$pageButtons .= '<button name="page" value="1" class="page-button page-button' . ($page == 1 ? '-selected' : '') . '">1</button>';
+	$pageButtons .= '<button form="search" name="page" value="1" class="page-button page-button' . ($page == 1 ? '-selected' : '') . '">1</button>';
 	if ($page > 4 && $pageCount > 7) {
 		$pageButtons .= ' ... ';
 	}
@@ -75,7 +74,7 @@ function pageButtons($page, $pageCount) {
 	$from = max(2, $from);
 
 	for ($i = $from; $i < $to; $i++) {
-		$pageButtons .= '<button name="page" value="' . $i . '" class="page-button page-button' . ($page == $i ? '-selected' : '') . '">' . $i . '</button>';
+		$pageButtons .= '<button name="page" form="search" value="' . $i . '" class="page-button page-button' . ($page == $i ? '-selected' : '') . '">' . $i . '</button>';
 	}
 
 	if ($pageCount > 1) {
@@ -83,10 +82,10 @@ function pageButtons($page, $pageCount) {
 			$pageButtons .= ' ... ';
 		}
 
-		$pageButtons .= '<button name="page" value="' . $pageCount . '" class="page-button page-button' . ($page == $pageCount ? '-selected' : '') . '">' . $pageCount . '</button>';
+		$pageButtons .= '<button name="page" form="search" value="' . $pageCount . '" class="page-button page-button' . ($page == $pageCount ? '-selected' : '') . '">' . $pageCount . '</button>';
 	}
 
-	$pageButtons .= '</p></form>';
+	$pageButtons .= '</p>';
 
 	return $pageButtons;
 }
@@ -214,21 +213,23 @@ function userTable($data, $page, $pageCount, $userCount, $userCountTotal, $users
                 {$pageButtons}
             </div>
             <div class="box-content-row">
-                <form>
+
 HTML;
 	echo '
-                    <input type="hidden" name="users_status" value="' . $usersStatus  . '">
+                    <form id="prev-search">
+                    <input type="hidden" name="users_status" value="' . $usersStatus . '">
                     <input type="hidden" class="prev-search" name="filter_results" value="' . (isset($userCountTotal) ? $userCountTotal : '') . '">
-                    <input type="hidden" class="prev-search" name="filter_status" value="' . (isset($prevSearch['status']) ? $prevSearch['status'] : '') . '">
+                    <input type="hidden" class="prev-search" name="filter_status" value="' . (isset($prevSearch['status']) ? $prevSearch['status'] : 'all') . '">
                     <input type="hidden" class="prev-search" name="filter_email" value="' . (isset($prevSearch['email']) ? $prevSearch['email'] : '') . '">
                     <input type="hidden" class="prev-search" name="filter_active_start" value="' . (isset($prevSearch['active_start']) ? $prevSearch['active_start'] : '') . '">
                     <input type="hidden" class="prev-search" name="filter_active_end" value="' . (isset($prevSearch['active_end']) ? $prevSearch['active_end'] : '') . '">
-                    <input type="hidden" class="prev-search" name="filter_boards_min" value="' . (isset($prevSearch['boards_min']) ? $prevSearch['boards_min'] : '') . '">
-                    <input type="hidden" class="prev-search" name="filter_boards_max" value="' . (isset($prevSearch['boards_max']) ? $prevSearch['boards_max'] : '') . '">
-                    <input type="hidden" class="prev-search" name="filter_tickets_min" value="' . (isset($prevSearch['tickets_min']) ? $prevSearch['tickets_min'] : '') . '">
-                    <input type="hidden" class="prev-search" name="filter_tickets_max" value="' . (isset($prevSearch['tickets_max']) ? $prevSearch['tickets_max'] : '') . '">
-                    <input type="hidden" class="prev-search" name="filter_guests_min" value="' . (isset($prevSearch['guests_min']) ? $prevSearch['guests_min'] : '') . '">
-                    <input type="hidden" class="prev-search" name="filter_guests_max" value="' . (isset($prevSearch['guests_max']) ? $prevSearch['guests_max'] : '') . '">
+                    <input type="hidden" class="prev-search" name="filter_boards_min" value="' . (isset($prevSearch['boards_min']) ? $prevSearch['boards_min'] : 0) . '">
+                    <input type="hidden" class="prev-search" name="filter_boards_max" value="' . (isset($prevSearch['boards_max']) ? $prevSearch['boards_max'] : 10000) . '">
+                    <input type="hidden" class="prev-search" name="filter_tickets_min" value="' . (isset($prevSearch['tickets_min']) ? $prevSearch['tickets_min'] : 0) . '">
+                    <input type="hidden" class="prev-search" name="filter_tickets_max" value="' . (isset($prevSearch['tickets_max']) ? $prevSearch['tickets_max'] : 10000) . '">
+                    <input type="hidden" class="prev-search" name="filter_guests_min" value="' . (isset($prevSearch['guests_min']) ? $prevSearch['guests_min'] : 0) . '">
+                    <input type="hidden" class="prev-search" name="filter_guests_max" value="' . (isset($prevSearch['guests_max']) ? $prevSearch['guests_max'] : 10000) . '">
+                    </form>
         ';
 	echo <<<HTML
                     <table class="data-table">
@@ -244,10 +245,22 @@ HTML;
                                     </div>
                                     <input type="checkbox" id="selection-all" name="selection-all" value="allResults" onclick="event.preventDefault(); switchDropdown();"><label for="selection-all"></label>
                                 </th>
-                                <th class="text-left"><a href="">Username</a></th>
-                                <th><a href="">Boards</a></th>
-                                <th><a href="">Tickets</a></th>
-                                <th><a href="">Last Active<i class="fa fa-fw fa-caret-down"></i></a></th>
+HTML;
+	echo '
+                                <th class="text-left"><button form="search" name="sort" value="' .
+	($prevSearch['sort'] == 'username_desc' ? 'username_asc' : 'username_desc') . '" class="table-button">' .
+	($prevSearch['sort'] == 'username_desc' ? '<i class="fa fa-fw fa-caret-down"></i>' : ($prevSearch['sort'] == 'username_asc' ? '<i class="fa fa-fw fa-caret-up"></i>' : '')) . 'Username</button></th>
+                                <th><button form="search" name="sort" value="' .
+	($prevSearch['sort'] == 'boards_desc' ? 'boards_asc' : 'boards_desc') . '" class="table-button">' .
+	($prevSearch['sort'] == 'boards_desc' ? '<i class="fa fa-fw fa-caret-down"></i>' : ($prevSearch['sort'] == 'boards_asc' ? '<i class="fa fa-fw fa-caret-up"></i>' : '')) . 'Boards</button></th>
+                                        <th><button form="search" name="sort" value="' .
+	($prevSearch['sort'] == 'tickets_desc' ? 'tickets_asc' : 'tickets_desc') . '" class="table-button">' .
+	($prevSearch['sort'] == 'tickets_desc' ? '<i class="fa fa-fw fa-caret-down"></i>' : ($prevSearch['sort'] == 'tickets_asc' ? '<i class="fa fa-fw fa-caret-up"></i>' : '')) . 'Tickets</button></th>
+                                <th><button form="search" name="sort" value="' .
+	($prevSearch['sort'] == 'active_desc' ? 'active_asc' : 'active_desc') . '" class="table-button">' .
+	($prevSearch['sort'] == 'active_desc' ? '<i class="fa fa-fw fa-caret-down"></i>' : ($prevSearch['sort'] == 'active_asc' ? '<i class="fa fa-fw fa-caret-up"></i>' : '')) . 'Last active</button></th>
+    ';
+	echo <<<HTML
                             </tr>
                         </thead>
                         <tbody>
@@ -275,17 +288,17 @@ HTML;
         </div>
         <div class="box-content-row">
             <div class="left">
-                <button type="button" class="big-button blue" name="message_user" onclick="loadLightbox(this)"><i class="fa fa-comment fa-lg fa_fix"></i> Message</button>
-                <button type="button" class="big-button purple" name="reset_password" onclick="loadLightbox(this)"><i class="fa fa-random fa-lg"></i> Reset password</button>
-                <button type="button" id="ban-button" class="big-button red" name="ban_user" onclick="loadLightbox(this)"><i class="fa fa-gavel fa-lg fa_fix"></i> Ban</button>
-                <button type="button" class="big-button red" name="delete_user" onclick="loadLightbox(this)"><i class="fa fa-trash-o fa-lg fa_fix"></i> Delete</button>
+                <button type="button" form="prev-search" class="big-button blue" name="message_user" onclick="loadLightbox(this)"><i class="fa fa-comment fa-lg fa_fix"></i> Message</button>
+                <button type="button" form="prev-search" class="big-button purple" name="reset_password" onclick="loadLightbox(this)"><i class="fa fa-random fa-lg"></i> Reset password</button>
+                <button type="button" form="prev-search" id="ban-button" class="big-button red" name="ban_user" onclick="loadLightbox(this)"><i class="fa fa-gavel fa-lg fa_fix"></i> Ban</button>
+                <button type="button" form="prev-search" class="big-button red" name="delete_user" onclick="loadLightbox(this)"><i class="fa fa-trash-o fa-lg fa_fix"></i> Delete</button>
             </div>
         </div>
     </div>
 HTML;
 }
 
-function backupTable($data) {
+function backupTable($data, $prevSearch) {
 	$count = count($data);
 	echo <<<HTML
     <div class="table-box">
@@ -304,15 +317,31 @@ function backupTable($data) {
                                 </div>
                                 <input type="checkbox" id="selection-all" name="selection-all" value="allResults" onclick="event.preventDefault(); switchDropdown();"><label for="selection-all"></label>
                             </th>
-                            <th><a href="#">Date</a><i class="fa fa-fw fa-caret-down"></i></th>
-                            <th class="text-left"><a href="#">Name</a></th>
-                            <th><a href="#">Size</a></th>
-                            <th><a href="#">Users</a></th>
-                            <th><a href="#">Boards</a></th>
-                            <th><a href="#">Tickets</a></th>
-                        </tr>
-                    </thead>
-                    <tbody>
+HTML;
+	echo '
+                                <th><button form="search" name="sort" value="' .
+	($prevSearch['sort'] == 'date_desc' ? 'date_asc' : 'date_desc') . '" class="table-button">' .
+	($prevSearch['sort'] == 'date_desc' ? '<i class="fa fa-fw fa-caret-down"></i>' : ($prevSearch['sort'] == 'date_asc' ? '<i class="fa fa-fw fa-caret-up"></i>' : '')) . 'Date</button></th>
+                                <th class="text-left"><button form="search" name="sort" value="' .
+	($prevSearch['sort'] == 'name_desc' ? 'name_asc' : 'name_desc') . '" class="table-button">' .
+	($prevSearch['sort'] == 'name_desc' ? '<i class="fa fa-fw fa-caret-down"></i>' : ($prevSearch['sort'] == 'name_asc' ? '<i class="fa fa-fw fa-caret-up"></i>' : '')) . 'Name</button></th>
+                                        <th><button form="search" name="sort" value="' .
+	($prevSearch['sort'] == 'size_desc' ? 'size_asc' : 'size_desc') . '" class="table-button">' .
+	($prevSearch['sort'] == 'size_desc' ? '<i class="fa fa-fw fa-caret-down"></i>' : ($prevSearch['sort'] == 'size_asc' ? '<i class="fa fa-fw fa-caret-up"></i>' : '')) . 'Size</button></th>
+                                                <th><button form="search" name="sort" value="' .
+	($prevSearch['sort'] == 'users_desc' ? 'users_asc' : 'users_desc') . '" class="table-button">' .
+	($prevSearch['sort'] == 'users_desc' ? '<i class="fa fa-fw fa-caret-down"></i>' : ($prevSearch['sort'] == 'users_asc' ? '<i class="fa fa-fw fa-caret-up"></i>' : '')) . 'Users</button></th>
+                                        <th><button form="search" name="sort" value="' .
+	($prevSearch['sort'] == 'boards_desc' ? 'boards_asc' : 'boards_desc') . '" class="table-button">' .
+	($prevSearch['sort'] == 'boards_desc' ? '<i class="fa fa-fw fa-caret-down"></i>' : ($prevSearch['sort'] == 'boards_asc' ? '<i class="fa fa-fw fa-caret-up"></i>' : '')) . 'Boards</button></th>
+                                        <th><button form="search" name="sort" value="' .
+	($prevSearch['sort'] == 'tickets_desc' ? 'tickets_asc' : 'tickets_desc') . '" class="table-button">' .
+	($prevSearch['sort'] == 'tickets_desc' ? '<i class="fa fa-fw fa-caret-down"></i>' : ($prevSearch['sort'] == 'tickets_asc' ? '<i class="fa fa-fw fa-caret-up"></i>' : '')) . 'Tickets</button></th>
+    ';
+	echo <<<HTML
+                            </tr>
+                        </thead>
+                        <tbody>
 HTML;
 
 	$i = 0;
@@ -345,7 +374,7 @@ HTML;
 HTML;
 }
 
-function boardTable($data, $page, $pageCount, $boardCount, $boardCountTotal) {
+function boardTable($data, $page, $pageCount, $boardCount, $boardCountTotal, $prevSearch) {
 	$pageButtons = pageButtons($page, $pageCount);
 	echo <<<HTML
         <div class="table-box">
@@ -354,18 +383,25 @@ function boardTable($data, $page, $pageCount, $boardCount, $boardCountTotal) {
                 {$pageButtons}
             </div>
             <div class="box-content-row">
-                <form>
-                    <input type="hidden" class="prev-search" name="filter_results" value="{$boardCountTotal}">
-                    <input type="hidden" class="prev-search" name="filter_owner" value="">
-                    <input type="hidden" class="prev-search" name="filter_created_start" value="">
-                    <input type="hidden" class="prev-search" name="filter_created_end" value="">
-                    <input type="hidden" class="prev-search" name="filter_active_start" value="">
-                    <input type="hidden" class="prev-search" name="filter_active_end" value="">
-                    <input type="hidden" class="prev-search" name="filter_tickets_min" value="">
-                    <input type="hidden" class="prev-search" name="filter_tickets_max" value="">
-                    <input type="hidden" class="prev-search" name="filter_guests_min" value="">
-                    <input type="hidden" class="prev-search" name="filter_guests_max" value="">
-                    <table class="data-table">
+HTML;
+	echo '
+                    <form id="prev-search">
+                    <input type="hidden" class="prev-search" name="filter_results" value="' . $boardCountTotal . '">
+                    <input type="hidden" class="prev-search" name="filter_owner" value="' . (isset($prevSearch['owner']) ? $prevSearch['owner'] : '') . '">
+                    <input type="hidden" class="prev-search" name="filter_created_start" value="' . (isset($prevSearch['created_start']) ? $prevSearch['created_start'] : '') . '">
+                    <input type="hidden" class="prev-search" name="filter_created_end" value="' . (isset($prevSearch['created_end']) ? $prevSearch['created_end'] : '') . '">
+                    <input type="hidden" class="prev-search" name="filter_active_start" value="' . (isset($prevSearch['active_start']) ? $prevSearch['active_start'] : '') . '">
+                    <input type="hidden" class="prev-search" name="filter_active_end" value="' . (isset($prevSearch['active_end']) ? $prevSearch['active_end'] : '') . '">
+                    <input type="hidden" class="prev-search" name="filter_boards_min" value="' . (isset($prevSearch['boards_min']) ? $prevSearch['boards_min'] : 0) . '">
+                    <input type="hidden" class="prev-search" name="filter_boards_max" value="' . (isset($prevSearch['boards_max']) ? $prevSearch['boards_max'] : 10000) . '">
+                    <input type="hidden" class="prev-search" name="filter_tickets_min" value="' . (isset($prevSearch['tickets_min']) ? $prevSearch['tickets_min'] : 0) . '">
+                    <input type="hidden" class="prev-search" name="filter_tickets_max" value="' . (isset($prevSearch['tickets_max']) ? $prevSearch['tickets_max'] : 10000) . '">
+                    <input type="hidden" class="prev-search" name="filter_guests_min" value="' . (isset($prevSearch['guests_min']) ? $prevSearch['guests_min'] : 0) . '">
+                    <input type="hidden" class="prev-search" name="filter_guests_max" value="' . (isset($prevSearch['guests_max']) ? $prevSearch['guests_max'] : 10000) . '">
+                    </form>
+                    ';
+	echo <<<HTML
+                        <table class="data-table">
                         <thead>
                             <tr class="header-row">
                                 <th id="selection-dropdown-switch" class="square ">
@@ -378,11 +414,25 @@ function boardTable($data, $page, $pageCount, $boardCount, $boardCountTotal) {
                                     </div>
                                 <input type="checkbox" id="selection-all" name="selection-all" value="allResults" onclick="event.preventDefault(); switchDropdown();"><label for="selection-all"></label>
                                 </th>
-                                <th class="text-left"><a href="">Owner</a></th>
-                                <th><a href="">Tickets</a></th>
-                                <th><a href="">Guests</a></th>
-                                <th><a href="">Created</a></th>
-                                <th><a href="">Last Active</a></th>
+HTML;
+	echo '
+                                <th class="text-left"><button form="search" name="sort" value="' .
+	($prevSearch['sort'] == 'owner_desc' ? 'owner_asc' : 'owner_desc') . '" class="table-button">' .
+	($prevSearch['sort'] == 'owner_desc' ? '<i class="fa fa-fw fa-caret-down"></i>' : ($prevSearch['sort'] == 'owner_asc' ? '<i class="fa fa-fw fa-caret-up"></i>' : '')) . 'Owner</button></th>
+                                <th><button form="search" name="sort" value="' .
+	($prevSearch['sort'] == 'tickets_desc' ? 'tickets_asc' : 'tickets_desc') . '" class="table-button">' .
+	($prevSearch['sort'] == 'tickets_desc' ? '<i class="fa fa-fw fa-caret-down"></i>' : ($prevSearch['sort'] == 'tickets_asc' ? '<i class="fa fa-fw fa-caret-up"></i>' : '')) . 'Tickets</button></th>
+                                        <th><button form="search" name="sort" value="' .
+	($prevSearch['sort'] == 'guests_desc' ? 'guests_asc' : 'guests_desc') . '" class="table-button">' .
+	($prevSearch['sort'] == 'guests_desc' ? '<i class="fa fa-fw fa-caret-down"></i>' : ($prevSearch['sort'] == 'guests_asc' ? '<i class="fa fa-fw fa-caret-up"></i>' : '')) . 'Guests</button></th>
+                                <th><button form="search" name="sort" value="' .
+	($prevSearch['sort'] == 'created_desc' ? 'created_asc' : 'created_desc') . '" class="table-button">' .
+	($prevSearch['sort'] == 'created_desc' ? '<i class="fa fa-fw fa-caret-down"></i>' : ($prevSearch['sort'] == 'created_asc' ? '<i class="fa fa-fw fa-caret-up"></i>' : '')) . 'Created at</button></th>
+                                <th><button form="search" name="sort" value="' .
+	($prevSearch['sort'] == 'active_desc' ? 'active_asc' : 'active_desc') . '" class="table-button">' .
+	($prevSearch['sort'] == 'active_desc' ? '<i class="fa fa-fw fa-caret-down"></i>' : ($prevSearch['sort'] == 'active_asc' ? '<i class="fa fa-fw fa-caret-up"></i>' : '')) . 'Last active</button></th>
+    ';
+	echo <<<HTML
                             </tr>
                         </thead>
                         <tbody>
@@ -402,7 +452,6 @@ HTML;
 	echo <<<HTML
                     </tbody>
                 </table>
-            </form>
         </div>
         <div class="box-content-row">
             {$pageButtons}

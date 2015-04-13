@@ -1,8 +1,11 @@
 <?php
+require_once 'auth.php';
 include_once 'sections.php';
 
+$search = array();
+$search['sort'] = '';
 foreach ($_GET as $key => $value) {
-	if (!empty($value)) {
+	if (!empty($value) || is_numeric($value)) {
 		$search[$key] = $value;
 	}
 }
@@ -38,6 +41,31 @@ if (empty($search)) {
 } else {
 	$boards = $database->getBoardArray($filter, 0, 0);
 
+	if (isset($search['sort'])) {
+		switch ($search['sort']) {
+			case 'owner_desc':usort($boards, function ($a, $b) {return strcmp($b['owner'], $a['owner']);	});
+				break;
+			case 'owner_asc':usort($boards, function ($a, $b) {return strcmp($a['owner'], $b['owner']);	});
+				break;
+			case 'tickets_asc':usort($boards, function ($a, $b) {return $a['tickets'] > $b['tickets'];	});
+				break;
+			case 'tickets_desc':usort($boards, function ($a, $b) {return $a['tickets'] < $b['tickets'];	});
+				break;
+			case 'guests_asc':usort($boards, function ($a, $b) {return $a['guests'] > $b['guests'];	});
+				break;
+			case 'guests_desc':usort($boards, function ($a, $b) {return $a['guests'] < $b['guests'];	});
+				break;
+			case 'active_desc':usort($boards, function ($a, $b) {return ($a['active'] == $b['active']) ? 0 : ($a['active'] < $b['active']) ? 1 : -1;	});
+				break;
+			case 'active_asc':usort($boards, function ($a, $b) {return ($a['active'] == $b['active']) ? 0 : ($a['active'] < $b['active']) ? -1 : 1;	});
+				break;
+			case 'created_desc':usort($boards, function ($a, $b) {return ($a['createdAt'] == $b['createdAt']) ? 0 : ($a['createdAt'] < $b['createdAt']) ? 1 : -1;	});
+				break;
+			case 'created_asc':usort($boards, function ($a, $b) {return ($a['createdAt'] == $b['createdAt']) ? 0 : ($a['createdAt'] < $b['createdAt']) ? -1 : 1;	});
+				break;
+		}
+	}
+
 	foreach ($boards as $key => $board) {
 		if ((isset($search['guests_min']) && $board['guests'] < $search['guests_min']) ||
 			(isset($search['guests_max']) && $board['guests'] > $search['guests_max']) ||
@@ -54,12 +82,12 @@ if (empty($search)) {
 		}
 	}
 
-	$boards = array_slice($boards, ($page - 1) * $rows, $rows);
-
 	$boardCountTotal = count($boards);
 	if ($boardCountTotal < $rows) {
 		$boardCount = $boardCountTotal;
 	}
+
+	$boards = array_slice($boards, ($page - 1) * $rows, $rows);
 
 }
 
@@ -84,7 +112,16 @@ $pageCount = intval(ceil($boardCountTotal / $rows));
                         <div class="box gray">
                             <h3 class="box-label">Search</h3>
                             <div class="box-content">
-                                <form>
+                                <form method="get" id="search">
+                                    <?php
+if (isset($search['sort'])) {
+	echo '<input type="hidden" name="sort" value="' . $search['sort'] . '">';
+}
+if (isset($search['page'])) {
+	echo '<input type="hidden" name="page" value="' . $search['page'] . '">';
+}
+
+?>
                                     <div class="box-content-block">
                                         <table class="form-table">
                                             <tr>
@@ -122,15 +159,15 @@ $pageCount = intval(ceil($boardCountTotal / $rows));
                                             <tbody>
                                                 <tr>
                                                     <td class="input-label">Tickets</td>
-                                                    <td><input type="number" name="tickets_min" value="<?php echo isset($search['tickets_min']) ? $search['tickets_min'] : 0?>"></td>
+                                                    <td><input type="number" name="tickets_min" min="0" value="<?php echo isset($search['tickets_min']) ? $search['tickets_min'] : 0?>"></td>
                                                     <td class="hyphen">-</td>
-                                                    <td><input type="number" name="tickets_max" value="<?php echo isset($search['tickets_max']) ? $search['tickets_max'] : 10000?>"></td>
+                                                    <td><input type="number" name="tickets_max" min="0" value="<?php echo isset($search['tickets_max']) ? $search['tickets_max'] : 10000?>"></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="input-label">Guests</td>
-                                                    <td><input type="number" name="guests_min" value="<?php echo isset($search['guests_min']) ? $search['guests_min'] : 0?>"></td>
+                                                    <td><input type="number" name="guests_min" min="0" value="<?php echo isset($search['guests_min']) ? $search['guests_min'] : 0?>"></td>
                                                     <td class="hyphen">-</td>
-                                                    <td><input type="number" name="guests_max" value="<?php echo isset($search['guests_max']) ? $search['guests_max'] : 10000?>"></td>
+                                                    <td><input type="number" name="guests_max" min="0" value="<?php echo isset($search['guests_max']) ? $search['guests_max'] : 10000?>"></td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -150,7 +187,7 @@ $pageCount = intval(ceil($boardCountTotal / $rows));
             <div class="row">
                 <div class="col-md-12 col-lg-10">
                     <div class="item">
-                    	<?php boardTable($boards, $page, $pageCount, $boardCount, $boardCountTotal);?>
+                    	<?php boardTable($boards, $page, $pageCount, $boardCount, $boardCountTotal, $search);?>
                     </div>
                 </div>
             </div>
