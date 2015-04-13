@@ -62,7 +62,6 @@ if (!isset($search)) {
 			(isset($search['active_start']) && (int) $user['active']->format('U') < strtotime($search['active_start'])) ||
 			(isset($search['active_end']) && (int) $user['active']->format('U') > strtotime($search['active_end']))
 		) {
-			$user['email'] = 'noom';
 			unset($users[$key]);
 		}
 	}

@@ -15,8 +15,13 @@ $(function() {
 
     $("select[name='status'] option[value='all']").attr("selected",true);
     $("input[name='email']", form).val('');
+    $("input[name='owner']", form).val('');
+    $("input[name='guests_min']", form).val(0);
+    $("input[name='guests_max']", form).val(10000);
     $("input[name='active_start']", form).val('');
     $("input[name='active_end']", form).val('');
+    $("input[name='created_start']", form).val('');
+    $("input[name='created_end']", form).val('');
     $("input[name='tickets_min']", form).val(0);
     $("input[name='tickets_max']", form).val(10000);
     $("input[name='boards_min']", form).val(0);

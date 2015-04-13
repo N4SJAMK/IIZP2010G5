@@ -31,7 +31,7 @@ filtering here
 
 $boardCount = $rows;
 
-if (empty($filter)) {
+if (empty($search)) {
 	$boards = $database->getBoardArray($filter, ($page - 1) * $rows, $rows);
 	$boardCount = count($boards);
 	$boardCountTotal = $database->getBoardCount();
@@ -39,8 +39,21 @@ if (empty($filter)) {
 	$boards = $database->getBoardArray($filter, 0, 0);
 
 	foreach ($boards as $key => $board) {
-
+		if ((isset($search['guests_min']) && $board['guests'] < $search['guests_min']) ||
+			(isset($search['guests_max']) && $board['guests'] > $search['guests_max']) ||
+			(isset($search['tickets_min']) && $board['tickets'] < $search['tickets_min']) ||
+			(isset($search['tickets_max']) && $board['tickets'] > $search['tickets_max']) ||
+			(!isset($board['active']) && (isset($search['active_start']) || isset($search['active_end']))) ||
+			(isset($search['active_start']) && (int) $board['active']->format('U') < strtotime($search['active_start'])) ||
+			(isset($search['active_end']) && (int) $board['active']->format('U') > strtotime($search['active_end'])) ||
+			(isset($search['created_start']) && (int) $board['createdAt']->format('U') < strtotime($search['created_start'])) ||
+			(isset($search['created_end']) && (int) $board['createdAt']->format('U') > strtotime($search['created_end'])) ||
+			(isset($search['owner']) && !preg_match('/^.*?' . addslashes($search['owner']) . '.*?$/', $board['owner']))
+		) {
+			unset($boards[$key]);
+		}
 	}
+
 	$boards = array_slice($boards, ($page - 1) * $rows, $rows);
 
 	$boardCountTotal = count($boards);
@@ -76,7 +89,7 @@ $pageCount = intval(ceil($boardCountTotal / $rows));
                                         <table class="form-table">
                                             <tr>
                                                 <td class="input-label">Owner</td>
-                                                <td colspan="3"><input class="full" type="text" name="owner"></td>
+                                                <td colspan="3"><input class="full" type="text" name="owner" value="<?php echo isset($search['owner']) ? $search['owner'] : ''?>"></td>
                                             </tr>
                                             <tr>
                                                 <th></th>
@@ -85,24 +98,16 @@ $pageCount = intval(ceil($boardCountTotal / $rows));
                                                 <th>End</th>
                                             </tr>
                                             <tr>
-                                                <td class="input-label" name="created_start">Last active</td>
-                                                <td><select class="date">
-                                                    <option value="25.12.2014">25.12.2014</option>
-                                                </select></td>
+                                                <td class="input-label" name="created_start">Created at</td>
+                                                <td><input class="datepicker" type="text" name="created_start" value="<?php echo isset($search['created_start']) ? $search['created_start'] : ''?>"></td>
                                                 <td class="hyphen">-</td>
-                                                <td><select class="date" name="created_end">
-                                                    <option value="27.01.2015">27.01.2015</option>
-                                                </select></td>
+                                                <td><input class="datepicker" type="text" name="created_end" value="<?php echo isset($search['created_end']) ? $search['created_end'] : ''?>"></td>
                                             </tr>
                                             <tr>
                                                 <td class="input-label" name="active_start">Last active</td>
-                                                <td><select class="date">
-                                                    <option value="25.12.2014">25.12.2014</option>
-                                                </select></td>
+                                                <td><input class="datepicker" type="text" name="active_start" value="<?php echo isset($search['active_start']) ? $search['active_start'] : ''?>"></td>
                                                 <td class="hyphen">-</td>
-                                                <td><select class="date" name="active_end">
-                                                    <option value="27.01.2015">27.01.2015</option>
-                                                </select></td>
+                                                <td><input class="datepicker" type="text" name="active_end" value="<?php echo isset($search['active_end']) ? $search['active_end'] : ''?>"></td>
                                             </tr>
                                         </table>
                                         <table class="form-table">
@@ -117,15 +122,15 @@ $pageCount = intval(ceil($boardCountTotal / $rows));
                                             <tbody>
                                                 <tr>
                                                     <td class="input-label">Tickets</td>
-                                                    <td><input type="number" name="tickets_min" value="0"></td>
+                                                    <td><input type="number" name="tickets_min" value="<?php echo isset($search['tickets_min']) ? $search['tickets_min'] : 0?>"></td>
                                                     <td class="hyphen">-</td>
-                                                    <td><input type="number" name="tickets_max" value="0"></td>
+                                                    <td><input type="number" name="tickets_max" value="<?php echo isset($search['tickets_max']) ? $search['tickets_max'] : 10000?>"></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="input-label">Guests</td>
-                                                    <td><input type="number" name="guests_min" value="0"></td>
+                                                    <td><input type="number" name="guests_min" value="<?php echo isset($search['guests_min']) ? $search['guests_min'] : 0?>"></td>
                                                     <td class="hyphen">-</td>
-                                                    <td><input type="number" name="guests_max" value="0"></td>
+                                                    <td><input type="number" name="guests_max" value="<?php echo isset($search['guests_max']) ? $search['guests_max'] : 10000?>"></td>
                                                 </tr>
                                             </tbody>
                                         </table>
