@@ -20,3 +20,6 @@ Go to the ContrA website using a modern browser.
 ### Step 5.
 
 Profit
+
+## How to use
+Please refer to the [User Guide](https://github.com/N4SJAMK/IIZP2010G5/wiki/user-guide) page.
