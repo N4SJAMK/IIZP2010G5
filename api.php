@@ -13,7 +13,7 @@ class TeamboardAPI {
 		$this->db = $this->connection->selectDB(DB_NAME);
 
 	}
-
+	//for testing purposes, not actually used
 	function addUser($email, $password) {
 		$collection = $this->db->users;
 
@@ -25,6 +25,7 @@ class TeamboardAPI {
 		$collection->insert($document);
 	}
 
+	//for testing purposes, not actually used
 	function addBoard($name, $width, $height, $background, $createdBy) {
 		$collection = $this->db->boards;
 
@@ -41,6 +42,7 @@ class TeamboardAPI {
 		$this->addEvent($document['_id'], $createdBy, 'BOARD_CREATE');
 	}
 
+	//for testing purposes, not actually used
 	function addTicket($board, $user, $content, $color, $x, $y, $z) {
 		$collection = $this->db->tickets;
 
@@ -56,6 +58,7 @@ class TeamboardAPI {
 		$this->addEvent($board, $user, 'TICKET_CREATE');
 	}
 
+	//for testing purposes, not actually used
 	function addEvent($board, $user, $type) {
 		$collection = $this->db->events;
 
